@@ -29,6 +29,9 @@ public class Main {
 
         switch (command) { //evaluates the value of the command
 
+            case ADD_TROT:
+                processAddTrot(manager, s);
+            
             case REM_CLIENT:
                 processRemoveClient(manager, s);
                 break;
@@ -43,6 +46,33 @@ public class Main {
 
     }
 
+    private static void processAddTrot(Manager manager, Scanner s) {
+
+        String idTrot = s.next();
+        String registration = s.next();
+
+        if (manager.addTrot(idTrot, registration)) {
+            System.out.println("Insercao de trotinete com sucesso.");
+        }
+        else {
+            System.out.println("Trotinete existente");
+        }
+
+    }
+
+
+    public static void processRemoveClient(Manager manager, Scanner s) {
+
+        String NIF = s.next();
+
+        if (manager.remClient(NIF)) {
+            System.out.println("Cliente removido com sucesso.");
+        }
+        else {
+            System.out.println("Cliente inexistente.");
+        }
+    }
+    
     public static void processAddClient(Manager manager, Scanner s) {
 
         String NIF = s.next();
@@ -62,15 +92,5 @@ public class Main {
         }
     }
 
-    public static void processRemoveClient(Manager manager, Scanner s) {
-
-        String NIF = s.next();
-
-        if (manager.remClient(NIF)) {
-            System.out.println("Cliente removido com sucesso.");
-        }
-        else {
-            System.out.println("Cliente inexistente.");
-        }
-    }
+    
 }
