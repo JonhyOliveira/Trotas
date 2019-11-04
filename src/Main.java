@@ -3,7 +3,7 @@ import java.util.Scanner;
 public class Main {
 
     public static final String ADD_CLIENT = "ADCLIENTE", REM_CLIENT = "REMCLIENTE", ADD_TROT = "ADTROT",
-                                CLIENT_DATA = "DADOCLIENTE", TROT_DATA = "DADOSTROT", DEPOSIT_BALANCE = "CARRSALDO",
+                                CLIENT_DATA = "DADOSCLIENTE", TROT_DATA = "DADOSTROT", DEPOSIT_BALANCE = "CARRSALDO",
                                 CLIENTS_TROT = "TROT", TROTS_CLIENT = "CLIENTE",
                                 RENT = "ALUGAR", RELEASE = "LIBERTAR",
                                 SYSTEM_STATE = "ESTADOSISTEMA", EXIT = "SAIR";
@@ -30,23 +30,46 @@ public class Main {
 
         switch (command) { //evaluates the value of the command
 
+            case SYSTEM_STATE:
+                processGetSystemState(manager);
+                break;
+
+            case EXIT:
+                System.out.println("Saindo...");
+                processGetSystemState(manager);
+                break;
+
+            case TROTS_CLIENT:
+                processGetTrotsClient(manager, s);
+                break;
+
+            case CLIENTS_TROT:
+                processGetClientsTrot(manager, s);
+                break;
+
             case RELEASE:
                 processRelease(manager, s);
+                break;
 
             case RENT:
                 processRental(manager, s);
+                break;
 
             case DEPOSIT_BALANCE:
                 processDeposit(manager, s);
+                break;
 
             case TROT_DATA:
                 processTrotData(manager, s);
+                break;
 
             case CLIENT_DATA:
                 processClientData(manager, s);
+                break;
 
             case ADD_TROT:
                 processAddTrot(manager, s);
+                break;
             
             case REM_CLIENT:
                 processRemoveClient(manager, s);
@@ -57,9 +80,48 @@ public class Main {
                 break;
 
             default:
-                System.out.println("Comando Invalido");
+                System.out.println("Comando invalido.");
+                break;
         }
 
+    }
+
+    private static void processGetSystemState(Manager manager) {
+
+        System.out.println(String.format("Estado actual: %s, %s, %s", manager.getNumberOfRentals(),
+                manager.getTotalEarned(), manager.getTotalDelays()));
+    }
+
+    private static void processGetTrotsClient(Manager manager, Scanner s) {
+
+        String idTrot = s.next();
+        Trot trot = manager.fetchTrot(idTrot);
+
+        if (trot == null) {
+            System.out.println("Trotinete inexistente.");
+            return;
+        }
+
+        Client c = manager.getTrotsClient(trot);
+
+        if (c == null) System.out.println("Trotinete nao alugada.");
+        else System.out.println(String.format("%s,%s", c.getNIF(), c.getName()));
+    }
+
+    private static void processGetClientsTrot(Manager manager, Scanner s) {
+
+        String NIF = s.next();
+        Client c = manager.fetchClient(NIF);
+
+        if (c == null) {
+            System.out.println("Cliente inexistente.");
+            return;
+        }
+
+        Trot t = manager.getClientsTrot(c);
+
+        if (t == null) System.out.println("Cliente sem trotinete.");
+        else System.out.println(String.format("%s, %s", t.getIdTrot(), t.getRegistration()));
     }
 
     private static void processRelease(Manager manager, Scanner s) {
@@ -69,7 +131,7 @@ public class Main {
         Trot trot = manager.fetchTrot(idTrot);
 
         if (minutes <= 0) {
-            System.out.println("Valor invalido");
+            System.out.println("Valor invalido.");
             return;
         }
 
@@ -79,7 +141,7 @@ public class Main {
         }
 
         if (manager.finishRental(trot, minutes)) System.out.println("Aluguer terminado.");
-        else System.out.println("Trotinete nao alugada");
+        else System.out.println("Trotinete nao alugada.");
     }
 
     private static void processRental(Manager manager, Scanner s) {
@@ -90,12 +152,12 @@ public class Main {
         Trot trot = manager.fetchTrot(idTrot);
 
         if (client == null) {
-            System.out.println("Cliente inexistente");
+            System.out.println("Cliente inexistente.");
             return;
         }
 
         if (trot == null) {
-            System.out.println("Trotinete inexistente");
+            System.out.println("Trotinete inexistente.");
             return;
         }
 
@@ -123,7 +185,7 @@ public class Main {
         if (c == null) System.out.println("Cliente inexistente.");
         else {
             c.deposit(value);
-            System.out.println("Carregamento efectuado");
+            System.out.println("Carregamento efectuado.");
         }
     }
 
@@ -148,8 +210,8 @@ public class Main {
         else {
             System.out.println(String.format("%s: %s, %s, %s, %s, %s, %s, %s, %s, %s", client.getName(), client.getNIF(),
                     client.getEmail(), client.getPhoneNumber(), client.getBalance(), client.getTotalTimeSpent(),
-                    client.getNumberOfRentals(), client.getMaxTimeSpent(), client.getMinTimeSpent(),
-                    client.getTotalSpent()));
+                    client.getNumberOfRentals(), client.getMaxTimeSpent(), client.getMedTimeSpent(),
+                    client.getTotalSpent()).trim());
         }
     }
 
@@ -162,7 +224,7 @@ public class Main {
             System.out.println("Insercao de trotinete com sucesso.");
         }
         else {
-            System.out.println("Trotinete existente");
+            System.out.println("Trotinete existente.");
         }
 
     }
@@ -172,9 +234,17 @@ public class Main {
 
         String NIF = s.next();
 
-        if (manager.remClient(NIF)) {
+        if (manager.fetchClient(NIF) != null)
+        {
+            if (manager.getClientsTrot(NIF) != null)
+            {
+                System.out.println("Cliente em movimento.");
+                return;
+            }
+            manager.remClient(NIF);
             System.out.println("Cliente removido com sucesso.");
         }
+
         else {
             System.out.println("Cliente inexistente.");
         }

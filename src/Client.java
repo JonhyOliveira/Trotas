@@ -1,9 +1,11 @@
+import java.util.ArrayList;
+
 public class Client {
 
     private String NIF, name, email;
-    private int numberOfRentals, phoneNumber;
+    private int phoneNumber;
     private int balance, totalSpent;
-    private int totalTimeSpent, minTimeSpent, maxTimeSpent;
+    private ArrayList<Integer> rentals;
 
     public Client(String NIF, String email, int phoneNumber, String name, int initialBalance) {
         this.NIF = NIF;
@@ -13,7 +15,8 @@ public class Client {
 
         balance = initialBalance;
 
-        numberOfRentals = totalSpent = totalTimeSpent = minTimeSpent = maxTimeSpent = 0;
+        totalSpent = 0;
+        rentals = new ArrayList<>();
     }
 
     /**
@@ -26,11 +29,7 @@ public class Client {
         balance -= cost;
         totalSpent += cost;
 
-        totalTimeSpent += minutes_since_beginning;
-        if (maxTimeSpent < minutes_since_beginning) maxTimeSpent = minutes_since_beginning;
-        if (minTimeSpent > minutes_since_beginning || minTimeSpent == 0) minTimeSpent = minutes_since_beginning;
-
-        numberOfRentals++;
+        rentals.add(minutes_since_beginning);
     }
 
     /**
@@ -55,7 +54,7 @@ public class Client {
     }
 
     public int getNumberOfRentals() {
-        return numberOfRentals;
+        return rentals.size();
     }
 
     public int getPhoneNumber() {
@@ -71,14 +70,32 @@ public class Client {
     }
 
     public int getTotalTimeSpent() {
+
+        int totalTimeSpent = 0;
+
+        for (int time : rentals) {
+            totalTimeSpent += time;
+        }
+
         return totalTimeSpent;
     }
 
-    public int getMinTimeSpent() {
-        return minTimeSpent;
+    public int getMedTimeSpent() {
+
+        int med = 0;
+        if (getNumberOfRentals() != 0) med = getTotalTimeSpent()/getNumberOfRentals();
+
+        return med;
     }
 
     public int getMaxTimeSpent() {
+
+        int maxTimeSpent = 0;
+
+        for (int time : rentals) {
+            if (time > maxTimeSpent) maxTimeSpent = time;
+        }
+
         return maxTimeSpent;
     }
 }

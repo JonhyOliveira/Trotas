@@ -62,7 +62,7 @@ public class Trot {
     }
 
     public String getState() {
-        if (isRented()) return "mov";
+        if (isRented()) return "alugada";
         return "parada";
     }
 }

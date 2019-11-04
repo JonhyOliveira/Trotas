@@ -6,6 +6,20 @@ public class Manager {
     private Trot trot;
     private Rental rental;
 
+    private int rentals, totalEarned, totalDelays;
+
+    public int getNumberOfRentals() {
+        return rentals;
+    }
+
+    public int getTotalEarned() {
+        return totalEarned;
+    }
+
+    public int getTotalDelays() {
+        return totalDelays;
+    }
+
     /**
      * This class keeps track of all interactions with the client and does some Boolean error checking to let the
      * UI (Main) know if the interaction was successful or not.
@@ -75,6 +89,19 @@ public class Manager {
         return c;
     }
 
+    public Client getTrotsClient(String idTrot) {
+        return getTrotsClient(fetchTrot(idTrot));
+    }
+
+    public Client getTrotsClient(Trot t) {
+
+        Client client = null;
+
+        if (rental != null) if (rental.getTrot().equals(t)) client = rental.getClient();
+
+        return client;
+    }
+
 
     /**
      * TROT
@@ -105,6 +132,21 @@ public class Manager {
         return t;
     }
 
+    public Trot getClientsTrot(String NIF) {
+
+        return getClientsTrot(fetchClient(NIF));
+
+    }
+
+    public Trot getClientsTrot(Client client) {
+
+        Trot trot = null;
+
+        if (rental != null) if (rental.getClient().equals(client)) trot = rental.getTrot();
+
+        return trot;
+    }
+
     /**
      * RENTALS
      */
@@ -121,6 +163,7 @@ public class Manager {
 
         if (c.getBalance() >= minForRental) {
             rental = new Rental(c, t);
+            t.rent();
             success = true;
         }
 
@@ -147,6 +190,10 @@ public class Manager {
             rental.getClient().registerRental(minutes, cost);
             rental.getTrot().registerRental(minutes);
             rental = null;
+
+            totalEarned += cost;
+            totalDelays += Math.max(minutes - rentLimit, 0);
+            rentals++;
         }
 
         return finished;
