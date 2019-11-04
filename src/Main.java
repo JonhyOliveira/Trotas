@@ -8,11 +8,12 @@ public class Main {
                                 RENT = "ALUGAR", RELEASE = "LIBERTAR",
                                 SYSTEM_STATE = "ESTADOSISTEMA", EXIT = "SAIR";
 
+    public static final int RENT_COST = 100, RENT_LIMIT = 60, DELAY = 30, INITIAL_BALANCE = 200, MIN_FOR_RENTAL = 100;
 
     public static void main(String[] args) {
 
         Scanner s = new Scanner(System.in);
-        Manager manager = new Manager();
+        Manager manager = new Manager(RENT_COST, RENT_LIMIT, DELAY, INITIAL_BALANCE, MIN_FOR_RENTAL);
 
         String command = "";
         while (!command.equals(EXIT))
@@ -29,6 +30,21 @@ public class Main {
 
         switch (command) { //evaluates the value of the command
 
+            case RELEASE:
+                processRelease(manager, s);
+
+            case RENT:
+                processRental(manager, s);
+
+            case DEPOSIT_BALANCE:
+                processDeposit(manager, s);
+
+            case TROT_DATA:
+                processTrotData(manager, s);
+
+            case CLIENT_DATA:
+                processClientData(manager, s);
+
             case ADD_TROT:
                 processAddTrot(manager, s);
             
@@ -44,6 +60,97 @@ public class Main {
                 System.out.println("Comando Invalido");
         }
 
+    }
+
+    private static void processRelease(Manager manager, Scanner s) {
+
+        String idTrot = s.next();
+        int minutes = s.nextInt();
+        Trot trot = manager.fetchTrot(idTrot);
+
+        if (minutes <= 0) {
+            System.out.println("Valor invalido");
+            return;
+        }
+
+        if (trot == null) {
+            System.out.println("Trotinete inexistente.");
+            return;
+        }
+
+        if (manager.finishRental(trot, minutes)) System.out.println("Aluguer terminado.");
+        else System.out.println("Trotinete nao alugada");
+    }
+
+    private static void processRental(Manager manager, Scanner s) {
+
+        String NIF = s.next();
+        String idTrot = s.next();
+        Client client = manager.fetchClient(NIF);
+        Trot trot = manager.fetchTrot(idTrot);
+
+        if (client == null) {
+            System.out.println("Cliente inexistente");
+            return;
+        }
+
+        if (trot == null) {
+            System.out.println("Trotinete inexistente");
+            return;
+        }
+
+        if (trot.isRented()) {
+            System.out.println("Trotinete nao pode ser alugada.");
+            return;
+        }
+
+        // The method return whether or not it was able to start the rental. Based on the minimum value to start the rental.
+        if (manager.startRental(client, trot)) System.out.println("Aluguer efectuado com sucesso.");
+        else System.out.println("Cliente sem saldo suficiente.");
+    }
+
+    private static void processDeposit(Manager manager, Scanner s) {
+
+        String NIF = s.next();
+        int value = s.nextInt();
+        Client c = manager.fetchClient(NIF);
+
+        if (value <= 0) {
+            System.out.println("Valor invalido.");
+            return;
+        }
+
+        if (c == null) System.out.println("Cliente inexistente.");
+        else {
+            c.deposit(value);
+            System.out.println("Carregamento efectuado");
+        }
+    }
+
+    private static void processTrotData(Manager manager, Scanner s) {
+
+        String idTrot = s.next();
+        Trot trot = manager.fetchTrot(idTrot);
+
+        if (trot == null) System.out.println("Trotinete inexistente.");
+        else {
+            System.out.println(String.format("%s: %s, %s, %s", trot.getRegistration(), trot.getState(),
+                    trot.getNumberOfRentals(), trot.getTotalTimeSpent()));
+        }
+    }
+
+    private static void processClientData(Manager manager, Scanner s) {
+
+        String NIF = s.next();
+        Client client = manager.fetchClient(NIF);
+
+        if (client == null) System.out.println("Cliente inexistente.");
+        else {
+            System.out.println(String.format("%s: %s, %s, %s, %s, %s, %s, %s, %s, %s", client.getName(), client.getNIF(),
+                    client.getEmail(), client.getPhoneNumber(), client.getBalance(), client.getTotalTimeSpent(),
+                    client.getNumberOfRentals(), client.getMaxTimeSpent(), client.getMinTimeSpent(),
+                    client.getTotalSpent()));
+        }
     }
 
     private static void processAddTrot(Manager manager, Scanner s) {

@@ -17,6 +17,7 @@ public class Client {
     }
 
     /**
+     * *!Warning!* This method does not error checking.
      * @param minutes_since_beginning Must be > 0
      * @param cost Value to deduct to the current balance
      */
@@ -34,7 +35,7 @@ public class Client {
 
     /**
      * *!Warning!* This method does no error checking.
-     * @param value Value to be deposited
+     * @param value Value to be deposited. SHOULD be > 0
      */
     public void deposit(int value)
     {

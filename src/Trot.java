@@ -53,11 +53,16 @@ public class Trot {
         return registration;
     }
 
-    public int getRentals() {
+    public int getNumberOfRentals() {
         return rentals;
     }
 
-    public int getTotalMinutes() {
+    public int getTotalTimeSpent() {
         return totalMinutes;
+    }
+
+    public String getState() {
+        if (isRented()) return "mov";
+        return "parada";
     }
 }

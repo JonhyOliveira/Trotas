@@ -1,22 +1,33 @@
-import javafx.util.Pair;
-
 public class Manager {
 
-    public static final int RENT_COST = 100, DELAY = 30, INITIAL_BALANCE = 200;
+    private int rentCost, rentLimit, delay, initialBalance, minForRental;
 
     private Client client;
     private Trot trot;
-    private Pair rental;
+    private Rental rental;
 
     /**
      * This class keeps track of all interactions with the client and does some Boolean error checking to let the
      * UI (Main) know if the interaction was successful or not.
+     * @param rentCost The rent cost. Also the value to increment when finishing the rental and the user surpasses the
+     *                 delay
+     * @param rentLimit The limit of the rental. Can be surpassed.
+     * @param delay When the user surpasses the rental limit. This is the interval between applying the rentCost to the
+     *              cost
+     * @param initialBalance The balance which the user starts with.
+     * @param minForRental The balance that the user needs to have to perform a rental.
      */
-    public Manager() {
+    public Manager(int rentCost, int rentLimit, int delay, int initialBalance, int minForRental) {
 
         client = null;
         trot = null;
         rental = null;
+
+        this.rentCost = rentCost;
+        this.rentLimit = rentLimit;
+        this.delay = delay;
+        this.initialBalance = initialBalance;
+        this.minForRental = minForRental;
     }
 
     /**
@@ -29,7 +40,7 @@ public class Manager {
 
         if (fetchClient(NIF) == null)
         {
-            client = new Client(NIF, email, phoneNumber, name, INITIAL_BALANCE);
+            client = new Client(NIF, email, phoneNumber, name, initialBalance);
             added = true;
         }
 
@@ -92,5 +103,52 @@ public class Manager {
         if (trot != null) if (trot.getIdTrot().toUpperCase().equals(idTrot.toUpperCase())) t = trot;
 
         return t;
+    }
+
+    /**
+     * RENTALS
+     */
+
+    /**
+     * Registers a rental between the Client and the Trot.
+     * @param c Client to register in the rental
+     * @param t Trot to register in the rental
+     * @return Whether or not the Client has enough balance to start the rental.
+     */
+    public boolean startRental(Client c, Trot t) {
+
+        boolean success = false;
+
+        if (c.getBalance() >= minForRental) {
+            rental = new Rental(c, t);
+            success = true;
+        }
+
+        return success;
+    }
+
+    public boolean finishRental(Trot t, int minutes) {
+
+        boolean finished = false;
+
+        if (t.isRented() && rental != null) {
+
+            finished = true;
+
+            int cost = rentCost;
+            int tempMin = minutes;
+            
+            while (tempMin - rentLimit > 0) {
+                cost += rentCost;
+                tempMin -= delay;
+            }
+
+            // modify client, trot and rental
+            rental.getClient().registerRental(minutes, cost);
+            rental.getTrot().registerRental(minutes);
+            rental = null;
+        }
+
+        return finished;
     }
 }
