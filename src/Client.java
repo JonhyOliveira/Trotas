@@ -5,6 +5,8 @@ public class Client {
     private String NIF, name, email;
     private int phoneNumber;
     private int balance, totalSpent;
+    private boolean promotionApplied;
+
     private ArrayList<Integer> rentals;
 
     public Client(String NIF, String email, int phoneNumber, String name, int initialBalance) {
@@ -39,6 +41,22 @@ public class Client {
     public void deposit(int value)
     {
         balance += value;
+    }
+
+    public boolean applyPromotion(int promotionValue) {
+
+        boolean applied = false;
+
+        if (!promotionApplied) {
+            applied = true;
+
+            int lastRental = rentals.get(rentals.size()-1); // the latest rental would be at the end of the list
+            rentals.remove(rentals.size()-1);
+
+            rentals.add(lastRental*promotionValue);
+        }
+
+        return applied;
     }
 
     public String getNIF() {
@@ -97,5 +115,9 @@ public class Client {
         }
 
         return maxTimeSpent;
+    }
+
+    public boolean hasPromotionBeenApplied() {
+        return promotionApplied;
     }
 }

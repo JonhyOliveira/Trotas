@@ -6,9 +6,11 @@ public class Main {
                                 CLIENT_DATA = "DADOSCLIENTE", TROT_DATA = "DADOSTROT", DEPOSIT_BALANCE = "CARRSALDO",
                                 CLIENTS_TROT = "TROT", TROTS_CLIENT = "CLIENTE",
                                 RENT = "ALUGAR", RELEASE = "LIBERTAR",
-                                SYSTEM_STATE = "ESTADOSISTEMA", EXIT = "SAIR";
+                                SYSTEM_STATE = "ESTADOSISTEMA", EXIT = "SAIR",
+                                PROMOTION = "PROMOCAO";
 
     public static final int RENT_COST = 100, RENT_LIMIT = 60, DELAY = 30, INITIAL_BALANCE = 200, MIN_FOR_RENTAL = 100;
+    public static final double PROMOTION_VALUE = .5f;
 
     public static void main(String[] args) {
 
@@ -29,6 +31,10 @@ public class Main {
     public static void handleOperation(String command, Manager manager, Scanner s) {
 
         switch (command) { //evaluates the value of the command
+
+            case PROMOTION:
+                processPromotion(manager, s);
+                break;
 
             case SYSTEM_STATE:
                 processGetSystemState(manager);
@@ -84,6 +90,26 @@ public class Main {
                 break;
         }
 
+    }
+
+    private static void processPromotion(Manager manager, Scanner s) {
+
+        String NIF = s.next();
+
+        Client c = manager.fetchClient(NIF);
+
+        if (c == null) {
+            System.out.println("Cliente inexistente.");
+            return;
+        }
+
+        if (manager.getClientsTrot(c) == null) {
+            System.out.println("Cliente inciou novo aluguer.");
+            return;
+        }
+
+        if (c.applyPromotion(PROMOTION_VALUE)) System.out.println("Promocao aplicada.");
+        else System.out.println("Promocao ja aplicada.");
     }
 
     private static void processGetSystemState(Manager manager) {
