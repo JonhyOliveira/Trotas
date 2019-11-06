@@ -1,12 +1,13 @@
 public class Manager {
 
-    private int rentCost, rentLimit, delay, initialBalance, minForRental;
+    private int _rentCost, _rentLimit, _delay, _initialBalance, _minForRental;
 
     private Client client;
     private Trot trot;
     private Rental rental;
 
     private int rentals, totalEarned, totalDelays;
+    private int lastRentalCost, lastRentalDelay;
 
     public int getNumberOfRentals() {
         return rentals;
@@ -37,11 +38,11 @@ public class Manager {
         trot = null;
         rental = null;
 
-        this.rentCost = rentCost;
-        this.rentLimit = rentLimit;
-        this.delay = delay;
-        this.initialBalance = initialBalance;
-        this.minForRental = minForRental;
+        this._rentCost = rentCost;
+        this._rentLimit = rentLimit;
+        this._delay = delay;
+        this._initialBalance = initialBalance;
+        this._minForRental = minForRental;
     }
 
     /**
@@ -54,7 +55,7 @@ public class Manager {
 
         if (fetchClient(NIF) == null)
         {
-            client = new Client(NIF, email, phoneNumber, name, initialBalance);
+            client = new Client(NIF, email, phoneNumber, name, _initialBalance);
             added = true;
         }
 
@@ -161,7 +162,7 @@ public class Manager {
 
         boolean success = false;
 
-        if (c.getBalance() >= minForRental) {
+        if (c.getBalance() >= _minForRental) {
             rental = new Rental(c, t);
             t.rent();
             success = true;
@@ -178,12 +179,12 @@ public class Manager {
 
             finished = true;
 
-            int cost = rentCost;
+            int cost = _rentCost;
             int tempMin = minutes;
             
-            while (tempMin - rentLimit > 0) {
-                cost += rentCost;
-                tempMin -= delay;
+            while (tempMin - _rentLimit > 0) {
+                cost += _rentCost;
+                tempMin -= _delay;
             }
 
             // modify client, trot and rental
@@ -192,10 +193,35 @@ public class Manager {
             rental = null;
 
             totalEarned += cost;
-            totalDelays += Math.max(minutes - rentLimit, 0);
+            totalDelays += Math.max(minutes - _rentLimit, 0);
             rentals++;
+
+            lastRentalCost = cost;
+            lastRentalDelay = _delay;
+
         }
 
         return finished;
+    }
+
+    /**
+     * Applies a promotion based on the client's last rental.
+     * @param client The client to apply the promotion to.
+     * @return Whether or not it was able to perform the promotion.
+     */
+    public boolean applyPromotion(Client client) {
+
+        boolean canApply = client.canApplyPromotion();
+
+        if (canApply) {
+
+            client.applyPromotion();
+            trot.applyPromotion();
+            totalDelays -= lastRentalDelay;
+            totalEarned -= lastRentalCost;
+            rentals--;
+        }
+
+        return canApply;
     }
 }

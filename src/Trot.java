@@ -2,16 +2,22 @@ public class Trot {
 
     private String idTrot, registration;
     private int rentals, totalMinutes;
+    private int lastRentalMinutes;
 
-    private boolean rented;
+    private boolean rented, activated;
 
     public Trot(String idTrot, String registration) {
         this.idTrot = idTrot;
         this.registration = registration;
 
         this.rented = false;
+        this.activated = true;
 
         rentals = totalMinutes = 0;
+    }
+
+    public void setActive(boolean state) {
+        activated = state;
     }
 
     /**
@@ -21,6 +27,7 @@ public class Trot {
     public void registerRental(int minutes) {
 
         totalMinutes += minutes;
+        lastRentalMinutes = minutes;
         rentals ++;
         this.rented = false;
     }
@@ -39,6 +46,12 @@ public class Trot {
         }
 
         return success;
+    }
+
+    public void applyPromotion() {
+
+        totalMinutes -= lastRentalMinutes;
+        rentals--;
     }
 
     public boolean isRented() {
@@ -62,7 +75,12 @@ public class Trot {
     }
 
     public String getState() {
-        if (isRented()) return "alugada";
+        if (!isActivated()) return "inactiva";
+        else if (isRented()) return "alugada";
         return "parada";
+    }
+
+    public boolean isActivated() {
+        return activated;
     }
 }

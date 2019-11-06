@@ -2,36 +2,65 @@ import java.util.ArrayList;
 
 public class Client {
 
+    // Own variables
     private String NIF, name, email;
     private int phoneNumber;
     private int balance, totalSpent;
-    private boolean promotionApplied;
 
-    private ArrayList<Integer> rentals;
+    //Rental variables
+    private int totalMinutes, maxMinutes, rentals;
+    private int lastRentalMinutes, lastRentalCost;
+    Client lastRentalState;
 
     public Client(String NIF, String email, int phoneNumber, String name, int initialBalance) {
         this.NIF = NIF;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.name = name;
+        lastRentalState = null;
 
         balance = initialBalance;
 
         totalSpent = 0;
-        rentals = new ArrayList<>();
+        rentals = totalMinutes = maxMinutes = 0;
+        lastRentalMinutes = lastRentalCost = 0;
+    }
+
+    public Client(Client client) {
+        NIF = client.NIF;
+        email = client.email;
+        phoneNumber = client.phoneNumber;
+        name = client.name;
+
+        balance = client.balance;
+
+        totalSpent = client.totalSpent;
+        rentals = client.rentals;
+        totalMinutes = client.totalMinutes;
+        maxMinutes = client.maxMinutes;
+        lastRentalCost = client.lastRentalCost;
+        lastRentalMinutes = client.lastRentalMinutes;
     }
 
     /**
      * *!Warning!* This method does not error checking.
-     * @param minutes_since_beginning Must be > 0
+     * @param minutes Must be > 0
      * @param cost Value to deduct to the current balance
      */
-    public void registerRental(int minutes_since_beginning, int cost) {
+    public void registerRental(int minutes, int cost) {
+
+        lastRentalState = new Client(this);
 
         balance -= cost;
         totalSpent += cost;
+        lastRentalCost = cost;
 
-        rentals.add(minutes_since_beginning);
+        rentals++;
+        totalMinutes += minutes;
+        lastRentalMinutes = minutes;
+
+        if (maxMinutes < minutes) maxMinutes = minutes;
+
     }
 
     /**
@@ -43,20 +72,16 @@ public class Client {
         balance += value;
     }
 
-    public boolean applyPromotion(int promotionValue) {
+    public void applyPromotion() {
 
-        boolean applied = false;
+        balance = lastRentalState.balance;
+        totalMinutes = lastRentalState.totalMinutes;
+        maxMinutes = lastRentalState.maxMinutes;
+        totalSpent = lastRentalState.totalSpent;
+        rentals = lastRentalState.rentals;
 
-        if (!promotionApplied) {
-            applied = true;
 
-            int lastRental = rentals.get(rentals.size()-1); // the latest rental would be at the end of the list
-            rentals.remove(rentals.size()-1);
-
-            rentals.add(lastRental*promotionValue);
-        }
-
-        return applied;
+        lastRentalState = null;
     }
 
     public String getNIF() {
@@ -72,7 +97,7 @@ public class Client {
     }
 
     public int getNumberOfRentals() {
-        return rentals.size();
+        return rentals;
     }
 
     public int getPhoneNumber() {
@@ -89,35 +114,28 @@ public class Client {
 
     public int getTotalTimeSpent() {
 
-        int totalTimeSpent = 0;
-
-        for (int time : rentals) {
-            totalTimeSpent += time;
-        }
-
-        return totalTimeSpent;
+        return totalMinutes;
     }
 
     public int getMedTimeSpent() {
 
-        int med = 0;
-        if (getNumberOfRentals() != 0) med = getTotalTimeSpent()/getNumberOfRentals();
-
-        return med;
+        return getNumberOfRentals() > 0 ? getTotalTimeSpent()/getNumberOfRentals() : 0;
     }
 
     public int getMaxTimeSpent() {
 
-        int maxTimeSpent = 0;
-
-        for (int time : rentals) {
-            if (time > maxTimeSpent) maxTimeSpent = time;
-        }
-
-        return maxTimeSpent;
+        return maxMinutes;
     }
 
-    public boolean hasPromotionBeenApplied() {
-        return promotionApplied;
+    public boolean canApplyPromotion() {
+        return lastRentalState != null;
+    }
+
+    public int getLastRentalMinutes() {
+        return lastRentalMinutes;
+    }
+
+    public int getLastRentalCost() {
+        return lastRentalCost;
     }
 }

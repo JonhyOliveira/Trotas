@@ -7,7 +7,8 @@ public class Main {
                                 CLIENTS_TROT = "TROT", TROTS_CLIENT = "CLIENTE",
                                 RENT = "ALUGAR", RELEASE = "LIBERTAR",
                                 SYSTEM_STATE = "ESTADOSISTEMA", EXIT = "SAIR",
-                                PROMOTION = "PROMOCAO";
+                                PROMOTION = "PROMOCAO",
+                                DEACTIVATE_TROT = "DESTROT", REACTIVATE_TROT = "REACTROT";
 
     public static final int RENT_COST = 100, RENT_LIMIT = 60, DELAY = 30, INITIAL_BALANCE = 200, MIN_FOR_RENTAL = 100;
     public static final double PROMOTION_VALUE = .5f;
@@ -31,6 +32,14 @@ public class Main {
     public static void handleOperation(String command, Manager manager, Scanner s) {
 
         switch (command) { //evaluates the value of the command
+
+            case REACTIVATE_TROT:
+                processReactivateTrot(manager, s);
+                break;
+
+            case DEACTIVATE_TROT:
+                processDeactivateTrot(manager, s);
+                break;
 
             case PROMOTION:
                 processPromotion(manager, s);
@@ -92,6 +101,45 @@ public class Main {
 
     }
 
+    private static void processReactivateTrot(Manager manager, Scanner s) {
+
+        String idTrot = s.next();
+
+        Trot trot = manager.fetchTrot(idTrot);
+
+        if (trot == null) {
+            System.out.println("Trotinete inexistente.");
+            return;
+        }
+
+        if (trot.isActivated()) System.out.println("Trotinete nao inactiva.");
+        else {
+            trot.setActive(true);
+            System.out.println("Trotinete reactivada.");
+        }
+    }
+
+    private static void processDeactivateTrot(Manager manager, Scanner s) {
+
+        String idTrot = s.next();
+
+        Trot trot = manager.fetchTrot(idTrot);
+
+        if (trot == null) {
+            System.out.println("Trotinete inexistente.");
+            return;
+        }
+
+        if (manager.getTrotsClient(trot) != null) {
+            System.out.println("Trotinete em movimento.");
+            return;
+        }
+
+        trot.setActive(false);
+        System.out.println("Trotinete desactivada.");
+
+    }
+
     private static void processPromotion(Manager manager, Scanner s) {
 
         String NIF = s.next();
@@ -103,12 +151,12 @@ public class Main {
             return;
         }
 
-        if (manager.getClientsTrot(c) == null) {
-            System.out.println("Cliente inciou novo aluguer.");
+        if (manager.getClientsTrot(c) != null) {
+            System.out.println("Cliente iniciou novo aluguer.");
             return;
         }
 
-        if (c.applyPromotion(PROMOTION_VALUE)) System.out.println("Promocao aplicada.");
+        if (manager.applyPromotion(c)) System.out.println("Promocao aplicada.");
         else System.out.println("Promocao ja aplicada.");
     }
 
@@ -166,8 +214,8 @@ public class Main {
             return;
         }
 
-        if (manager.finishRental(trot, minutes)) System.out.println("Aluguer terminado.");
-        else System.out.println("Trotinete nao alugada.");
+        if (!manager.finishRental(trot, minutes) || !trot.isActivated()) System.out.println("Trotinete nao alugada.");
+        else System.out.println("Aluguer terminado.");
     }
 
     private static void processRental(Manager manager, Scanner s) {
@@ -187,7 +235,7 @@ public class Main {
             return;
         }
 
-        if (trot.isRented()) {
+        if (trot.isRented() || !trot.isActivated()) {
             System.out.println("Trotinete nao pode ser alugada.");
             return;
         }
