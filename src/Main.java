@@ -11,7 +11,6 @@ public class Main {
                                 DEACTIVATE_TROT = "DESTROT", REACTIVATE_TROT = "REACTROT";
 
     public static final int RENT_COST = 100, RENT_LIMIT = 60, DELAY = 30, INITIAL_BALANCE = 200, MIN_FOR_RENTAL = 100;
-    public static final double PROMOTION_VALUE = .5f;
 
     public static void main(String[] args) {
 
@@ -29,9 +28,20 @@ public class Main {
 
     }
 
+
+
     public static void handleOperation(String command, Manager manager, Scanner s) {
 
         switch (command) { //evaluates the value of the command
+
+            case EXIT:
+                System.out.println("Saindo...");
+                processGetSystemState(manager);
+                break;
+
+            case SYSTEM_STATE:
+                processGetSystemState(manager);
+                break;
 
             case REACTIVATE_TROT:
                 processReactivateTrot(manager, s);
@@ -43,15 +53,6 @@ public class Main {
 
             case PROMOTION:
                 processPromotion(manager, s);
-                break;
-
-            case SYSTEM_STATE:
-                processGetSystemState(manager);
-                break;
-
-            case EXIT:
-                System.out.println("Saindo...");
-                processGetSystemState(manager);
                 break;
 
             case TROTS_CLIENT:

@@ -90,6 +90,11 @@ public class Manager {
         return c;
     }
 
+    /**
+     * Same as getTrotsClient(Trot), but accepts an idTrot.
+     * @param idTrot The idTrot of the trot to look for using fetchTrot(idTrot).
+     * @return The client that's related to the trot, if any.
+     */
     public Client getTrotsClient(String idTrot) {
         return getTrotsClient(fetchTrot(idTrot));
     }
@@ -133,12 +138,23 @@ public class Manager {
         return t;
     }
 
+    /**
+     * Same as getClientsTrot(Client), but accepts a NIF.
+     * @param NIF The NIF of the Client to look for using fetchClient(NIF).
+     * @return The trot that's related to the client, if any.
+     */
     public Trot getClientsTrot(String NIF) {
 
         return getClientsTrot(fetchClient(NIF));
 
     }
 
+    /**
+     * Gets the Trot that is related to the client.
+     * @pre rental!=null
+     * @param client Client to look for.
+     * @return The trot that's related to the client.
+     */
     public Trot getClientsTrot(Client client) {
 
         Trot trot = null;
@@ -171,6 +187,12 @@ public class Manager {
         return success;
     }
 
+    /**
+     * Finishes rental and returns whether or not it was able to finish it.
+     * @param t Trot that has been rented.
+     * @param minutes Minutes since the beginning of the rental.
+     * @return Whether or not it was able to finish the rental (Trot is rented).
+     */
     public boolean finishRental(Trot t, int minutes) {
 
         boolean finished = false;

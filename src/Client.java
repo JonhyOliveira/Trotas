@@ -9,8 +9,7 @@ public class Client {
 
     //Rental variables
     private int totalMinutes, maxMinutes, rentals;
-    private int lastRentalMinutes, lastRentalCost;
-    Client lastRentalState;
+    private Client lastRentalState;
 
     public Client(String NIF, String email, int phoneNumber, String name, int initialBalance) {
         this.NIF = NIF;
@@ -23,10 +22,9 @@ public class Client {
 
         totalSpent = 0;
         rentals = totalMinutes = maxMinutes = 0;
-        lastRentalMinutes = lastRentalCost = 0;
     }
 
-    public Client(Client client) {
+    private Client(Client client) {
         NIF = client.NIF;
         email = client.email;
         phoneNumber = client.phoneNumber;
@@ -38,8 +36,6 @@ public class Client {
         rentals = client.rentals;
         totalMinutes = client.totalMinutes;
         maxMinutes = client.maxMinutes;
-        lastRentalCost = client.lastRentalCost;
-        lastRentalMinutes = client.lastRentalMinutes;
     }
 
     /**
@@ -53,11 +49,9 @@ public class Client {
 
         balance -= cost;
         totalSpent += cost;
-        lastRentalCost = cost;
 
         rentals++;
         totalMinutes += minutes;
-        lastRentalMinutes = minutes;
 
         if (maxMinutes < minutes) maxMinutes = minutes;
 
@@ -81,7 +75,7 @@ public class Client {
         rentals = lastRentalState.rentals;
 
 
-        lastRentalState = null;
+        lastRentalState = null; // makes canApplyPromotion() return false
     }
 
     public String getNIF() {
@@ -131,11 +125,4 @@ public class Client {
         return lastRentalState != null;
     }
 
-    public int getLastRentalMinutes() {
-        return lastRentalMinutes;
-    }
-
-    public int getLastRentalCost() {
-        return lastRentalCost;
-    }
 }
